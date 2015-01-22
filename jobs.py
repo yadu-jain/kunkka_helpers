@@ -51,6 +51,7 @@ class JobsWaiter(object):
 		self.wait_list[pickle.dumps(obj)]=JobsWaiter.ADDED
 		
 	def add_job(self,obj):
+		## Add job to server callbacks
 		job=obj
 		callback_list=[self.get_callback_job()]
 		
@@ -80,7 +81,8 @@ class JobsWaiter(object):
 					req=callback_job
 			else:
 				raise Exception("Invalid callbacks !")
-				
+		## Add job to local wait list
+		self.wait_list[pickle.dumps(obj)]=JobsWaiter.ADDED
 	def done_task(self,obj):
 		#self.waiter_queue.put(obj)		
 		del self.wait_list[pickle.dumps(obj)]
