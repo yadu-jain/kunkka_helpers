@@ -12,6 +12,23 @@ PORTNUM = 8004 #Preffered port
 IP='127.0.0.1'#"10.66.60.90"
 from collections import OrderedDict
 
+def add_job(job,callback_list=[]):
+	manager=JobsManager()
+	if type(job)==tuple:
+		if len(job)==2:
+			job.add({})			
+		if len(job)==0:
+			raise Exception("Invalid job !")
+	else:
+		raise Exception("Invalid job !")
+
+	job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
+	job_q=manager.get_job_q()
+	db=manager.get_server_db()	
+	row_id = db.add_job(job,callback_list)
+	job_q.put(job + (row_id,))				
+	del db,manager,job_q
+
 class JobsWaiter(object):	
 	# FAILED 	=-1
 	# SUCCESS =0	
@@ -78,7 +95,7 @@ class JobsWaiter(object):
 			raise Exception("Invalid job !")
 
 		job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
-		self.job_q.put(job)				
+		
 		req=job
 		for callback_job in  callback_list:
 			if type(job)==tuple:				
@@ -93,6 +110,10 @@ class JobsWaiter(object):
 					job=callback_job
 			else:
 				raise Exception("Invalid callbacks !")
+		db=self.manager.get_server_db()		
+		
+		row_id = db.add_job(req)
+		self.job_q.put(req+(row_id,))				
 		## Add job to local wait list
 		self.wait_list[pickle.dumps(req)]=JobsWaiter.ADDED
 
@@ -132,6 +153,7 @@ class JobsManager(SyncManager):
 		print 'Client connected to %s:%s' % (IP, PORTNUM)
 
 JobsManager.register('add_job')	
+JobsManager.register('get_server_db')	
 JobsManager.register('get_job_q')	
 JobsManager.register('get_sync_data')	
 JobsManager.register('get_callbacks_dict')	
