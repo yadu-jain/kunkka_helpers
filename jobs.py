@@ -112,7 +112,7 @@ class JobsWaiter(object):
 				raise Exception("Invalid callbacks !")
 		db=self.manager.get_server_db()		
 		
-		row_id = db.add_job(req)
+		row_id = db.add_job(req,callback_list)
 		self.job_q.put(req+(row_id,))				
 		## Add job to local wait list
 		self.wait_list[pickle.dumps(req)]=JobsWaiter.ADDED
