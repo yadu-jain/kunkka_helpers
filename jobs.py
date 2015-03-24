@@ -96,24 +96,25 @@ class JobsWaiter(object):
 
 		job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
 		
-		req=job
-		for callback_job in  callback_list:
-			if type(job)==tuple:				
-				if len(job)==2:
-					job.add({})			
-				if len(callback_job)==2:
-					callback_job.add({})			
-				if len(callback_job)==0:
-					raise Exception("Invalid callbacks !")
-				else:
-					self.callbacks_dict[pickle.dumps(job)]=callback_job
-					job=callback_job
-			else:
-				raise Exception("Invalid callbacks !")
-		db=self.manager.get_server_db()		
 		
-		row_id = db.add_job(req,callback_list)
-		self.job_q.put(req+(row_id,))				
+		db=self.manager.get_server_db()				
+		row_id = db.add_job(job,callback_list)
+		job=job+(row_id,)
+		req=job
+		callback_job = callback_list[0]
+		if type(job)==tuple:				
+			if len(job)==2:
+				job.add({})			
+			if len(callback_job)==2:
+				callback_job.add({})			
+			if len(callback_job)==0:
+				raise Exception("Invalid callbacks !")
+			else:
+				self.callbacks_dict[pickle.dumps(job)]=callback_job
+				job=callback_job
+		else:
+			raise Exception("Invalid callbacks !")				
+		self.job_q.put(req)				
 		## Add job to local wait list
 		self.wait_list[pickle.dumps(req)]=JobsWaiter.ADDED
 
