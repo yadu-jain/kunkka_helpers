@@ -87,8 +87,11 @@ class Jobs_Pusher(object):
 		try:
 			return self.__add_job_to__(job, callback_list, self.manager)
 		except Exception as e:
-			
-			raise Exception("Failed to connect dist_it|"+str(e))
+			try:
+				self.__refresh__()
+				return self.__add_job_to__(job, callback_list, self.manager)	
+			except Exception as e2:		
+				raise Exception("Failed to connect dist_it|"+str(e2))
 
 
 class JobsWaiter(object):	
