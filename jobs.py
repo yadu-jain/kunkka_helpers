@@ -11,8 +11,8 @@ AUTHKEY= "60c05c632a2822a0a877c7e991602543"
 PORTNUM = 8005 #Preffered port
 #IP='127.0.0.1'#"10.66.60.90"
 #IP="10.66.60.90"
-IP='127.0.0.1' #"10.66.60.90"
-#IP="216.12.192.201"
+#IP='127.0.0.1' #"10.66.60.90"
+IP="216.12.192.201"
 
 ## orderdict is not supported in dist_it
 # try:
@@ -69,10 +69,7 @@ class Jobs_Pusher(object):
 		print "added"
 		return row_id
 
-	def __refresh__(self):
-		del self.manager
-		del self.job_q
-		del self.db
+	def __refresh__(self):		
 		self.manager=JobsManager(self.server_ip,self.port,self.auth_key)		
 		self.job_q=self.manager.get_job_q()
 		self.db=self.manager.get_server_db()
