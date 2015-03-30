@@ -52,7 +52,7 @@ class Jobs_Pusher(object):
 		self.auth_key=auth_key
 		self.manager=None
 		self.job_q=None
-		del self.db=None
+		self.db=None
 		self.__refresh__()	
 		
 	def __add_job_to__(self,job,callback_list,manager):				
