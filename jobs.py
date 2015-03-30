@@ -7,6 +7,8 @@ from multiprocessing.managers import SyncManager
 from datetime import datetime,timedelta
 import time
 import pickle
+import traceback
+
 AUTHKEY= "60c05c632a2822a0a877c7e991602543"
 PORTNUM = 8005 #Preffered port
 #IP='127.0.0.1'#"10.66.60.90"
@@ -91,6 +93,7 @@ class Jobs_Pusher(object):
 				self.__refresh__()
 				return self.__add_job_to__(job, callback_list, self.manager)	
 			except Exception as e2:		
+				traceback.print_exc()
 				raise Exception("Failed to connect dist_it|"+str(e2))
 
 
