@@ -49,8 +49,11 @@ class Jobs_Pusher(object):
 	def __init__(self,server_ip,port,auth_key):		
 		self.server_ip=server_ip
 		self.port=port
-		self.auth_key=auth_key				
-			
+		self.auth_key=auth_key
+		self.manager=None
+		self.job_q=None
+		del self.db=None
+		self.__refresh__()	
 		
 	def __add_job_to__(self,job,callback_list,manager):				
 		if type(job)==tuple:
@@ -69,7 +72,10 @@ class Jobs_Pusher(object):
 		print "added"
 		return row_id
 
-	def __refresh__(self):		
+	def __refresh__(self):	
+		del	self.manager
+		del	self.job_q
+		del self.db
 		self.manager=JobsManager(self.server_ip,self.port,self.auth_key)		
 		self.job_q=self.manager.get_job_q()
 		self.db=self.manager.get_server_db()
