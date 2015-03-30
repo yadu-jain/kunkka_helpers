@@ -8,11 +8,22 @@ from datetime import datetime,timedelta
 import time
 import pickle
 AUTHKEY= "60c05c632a2822a0a877c7e991602543"
-PORTNUM = 8004 #Preffered port
-IP='127.0.0.1'#"10.66.60.90"
-from collections import OrderedDict
+PORTNUM = 8005 #Preffered port
+#IP='127.0.0.1'#"10.66.60.90"
+#IP="10.66.60.90"
+IP='127.0.0.1' #"10.66.60.90"
+#IP="216.12.192.201"
 
-def add_job(job,callback_list=[]):
+## orderdict is not supported in dist_it
+# try:
+#     from collections import OrderedDict
+# except ImportError:
+#     # python 2.6 or earlier, use backport
+#     from ordereddict import OrderedDict
+
+
+## Can be used to add job as standalone function ignoring to manage connection
+def add_job(job,callback_list=[]):	
 	manager=JobsManager()
 	if type(job)==tuple:
 		if len(job)==2:
@@ -22,12 +33,60 @@ def add_job(job,callback_list=[]):
 	else:
 		raise Exception("Invalid job !")
 
-	job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
+	#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
+	job=(job[0],job[1],dict(sorted(job[2].items())))
+	print "getting job queue"
 	job_q=manager.get_job_q()
 	db=manager.get_server_db()	
+	print "adding job..."
 	row_id = db.add_job(job,callback_list)
+	print "..."
 	job_q.put(job + (row_id,))				
 	del db,manager,job_q
+
+## Can be used to add job with ability to reuse connection 
+class Jobs_Pusher(object):
+	def __init__(self,server_ip,port,auth_key):		
+		self.server_ip=server_ip
+		self.port=port
+		self.auth_key=auth_key				
+			
+		
+	def __add_job_to__(self,job,callback_list,manager):				
+		if type(job)==tuple:
+			if len(job)==2:
+				job.add({})			
+			if len(job)==0:
+				raise Exception("Invalid job !")
+		else:
+			raise Exception("Invalid job !")
+		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
+		print "getting job queue"				
+		print "db add"
+		row_id = self.db.add_job(job,callback_list)
+		print "queue put"
+		self.job_q.put(job + (row_id,))						
+		print "added"
+		return row_id
+
+	def __refresh__(self):
+		del self.manager
+		del self.job_q
+		del self.db
+		self.manager=JobsManager(self.server_ip,self.port,self.auth_key)		
+		self.job_q=self.manager.get_job_q()
+		self.db=self.manager.get_server_db()
+
+	def add_job(self,job,callback_list=[]):
+		"""
+		To add job to dist_it
+		"""
+		try:
+			return self.__add_job_to__(job, callback_list, self.manager)
+		except Exception as e:
+			
+			raise Exception("Failed to connect dist_it|"+str(e))
+
 
 class JobsWaiter(object):	
 	# FAILED 	=-1
@@ -150,6 +209,19 @@ class JobsManager(SyncManager):
 	"""
 	def __init__(self):
 		super(JobsManager, self).__init__(address=(IP, PORTNUM), authkey=AUTHKEY)
+		self.connect()
+		print 'Client connected to %s:%s' % (IP, PORTNUM)
+
+	def __init__(self,server_ip=None,port=None,auth_key=None):
+
+		if server_ip==None:
+			server_ip=IP
+		if port==None:
+			port=PORTNUM
+		if auth_key==None:
+			auth_key=AUTHKEY
+
+		super(JobsManager, self).__init__(address=(server_ip, port), authkey=auth_key)
 		self.connect()
 		print 'Client connected to %s:%s' % (IP, PORTNUM)
 
