@@ -75,9 +75,9 @@ class Jobs_Pusher(object):
 		return row_id
 
 	def __refresh__(self):	
-		del	self.manager
-		del	self.job_q
-		del self.db
+		#del	self.manager
+		#del	self.job_q
+		#del self.db
 		self.manager=JobsManager(self.server_ip,self.port,self.auth_key)		
 		self.job_q=self.manager.get_job_q()
 		self.db=self.manager.get_server_db()
@@ -92,7 +92,8 @@ class Jobs_Pusher(object):
 			try:
 				self.__refresh__()
 				return self.__add_job_to__(job, callback_list, self.manager)	
-			except Exception as e2:		
+			except Exception as e2:	
+				print e2	
 				traceback.print_stack()
 				raise Exception("Failed to connect dist_it|"+str(e2))
 
