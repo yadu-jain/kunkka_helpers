@@ -1,8 +1,8 @@
 #from helpers 
 import db
-
 GDS_USERNAME="agn"
 GDS_PASSWORD="t0w3r47556br!dg3"
+refresh_routes_url="http://gds.beta.travelyaari.com/service_report_ajax/refresh_new_trip?shared_key=b218fad544980213a25ef18031c9127e&PROVIDER_TRIP_ID=$provider_trip_id&PROVIDER_ID=$provider_id&STR_FROM_JOURNEY_DATE=$from_jd&STR_TO_JOURNEY_DATE=$to_jd"
 
 def get_process_id(provider_id):
 	"""
@@ -21,6 +21,18 @@ def get_process_id(provider_id):
 	else:
 		raise Exception("Process Id found as 0!")
 
+def refresh_routes(provider_trip_id,provider_id,from_jd,to_jd):		
+	"""	
+		from_jd: string date(YYYY-MM-DD)
+		to_jd: string date(YYYY-MM-DD)
+	"""
+	url=refresh_routes_url
+	url=url.replace("$provider_trip_id",str(provider_trip_id))
+	url=url.replace("$provider_id",str(provider_id))
+	url=url.replace("$from_jd",from_jd)
+	url=url.replace("$to_jd",to_jd)
+	import urllib2
+	return urllib2.urlopen(url).read()
 ###-----------------------------------------------------------------------####
 if __name__=='__main__':
 	print get_process_id(1)
