@@ -1,8 +1,14 @@
 #from helpers 
 import db
-GDS_USERNAME="agn"
-GDS_PASSWORD="t0w3r47556br!dg3"
-refresh_routes_url="http://gds.beta.travelyaari.com/service_report_ajax/refresh_new_trip?shared_key=b218fad544980213a25ef18031c9127e&PROVIDER_TRIP_ID=$provider_trip_id&PROVIDER_ID=$provider_id&STR_FROM_JOURNEY_DATE=$from_jd&STR_TO_JOURNEY_DATE=$to_jd"
+import server_config as config
+#GDS_USERNAME="agn"
+#GDS_PASSWORD="t0w3r47556br!dg3"
+#refresh_routes_url="http://gds.beta.travelyaari.com/service_report_ajax/refresh_new_trip?shared_key=b218fad544980213a25ef18031c9127e&PROVIDER_TRIP_ID=$provider_trip_id&PROVIDER_ID=$provider_id&STR_FROM_JOURNEY_DATE=$from_jd&STR_TO_JOURNEY_DATE=$to_jd"
+
+server_config=config.Server_Config()
+REFRESH_ROUTES_URL=server_config.get_config("refresh_routes_url")
+GDS_USERNAME=server_config.get_config("gds_username")
+GDS_PASSWORD=server_config.get_config("gds_password")
 
 def get_process_id(provider_id):
 	"""
