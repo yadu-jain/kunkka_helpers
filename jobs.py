@@ -8,13 +8,8 @@ from datetime import datetime,timedelta
 import time
 import pickle
 import traceback
+import server_config as config
 
-AUTHKEY= "60c05c632a2822a0a877c7e991602543"
-PORTNUM = 8005 #Preffered port
-#IP='127.0.0.1'#"10.66.60.90"
-#IP="10.66.60.90"
-#IP='127.0.0.1' #"10.66.60.90"
-IP="216.12.192.201"
 
 ## orderdict is not supported in dist_it
 # try:
@@ -40,13 +35,15 @@ def add_job(job,callback_list=[]):
 	print "getting job queue"
 	job_q=manager.get_job_q()
 	db=manager.get_server_db()	
-	print "adding job..."
-	row_id = db.add_job(job,callback_list)
-	print "..."
+	row_id=0
+	if self.db!=None:
+		print "adding job..."
+		row_id = db.add_job(job,callback_list)	
 	job_q.put(job + (row_id,))				
 	del db,manager,job_q
 
-## Can be used to add job with ability to reuse connection 
+## Can be used to add job with ability to reuse connection
+
 class Jobs_Pusher(object):
 	def __init__(self,server_ip,port,auth_key):		
 		self.server_ip=server_ip
@@ -67,8 +64,9 @@ class Jobs_Pusher(object):
 			raise Exception("Invalid job !")
 		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
 		print "getting job queue"				
-		print "db add"
-		row_id = self.db.add_job(job,callback_list)
+		row_id=0
+		if self.db!=None:
+			row_id = self.db.add_job(job,callback_list)
 		print "queue put"
 		self.job_q.put(job + (row_id,))						
 		print "added"
@@ -97,7 +95,7 @@ class Jobs_Pusher(object):
 				traceback.print_stack()
 				raise Exception("Failed to connect dist_it|"+str(e2))
 
-
+### Only supported in python 2.7 
 class JobsWaiter(object):	
 	# FAILED 	=-1
 	# SUCCESS =0	
@@ -162,12 +160,18 @@ class JobsWaiter(object):
 				raise Exception("Invalid job !")
 		else:
 			raise Exception("Invalid job !")
-
-		job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
+		#from collections import OrderedDict
+		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))		
+		job=(job[0],job[1],dict(job[2]))
 		
-		
+		print job
+		print "Getting db"
 		db=self.manager.get_server_db()				
-		row_id = db.add_job(job,callback_list)
+
+		row_id=0				
+		if not db._getvalue() is None:
+			print db
+			row_id = db.add_job(job,callback_list)
 		job=job+(row_id,)
 		req=job
 		callback_job = callback_list[0]
@@ -212,17 +216,25 @@ class JobsWaiter(object):
 	def get_tasks(self):
 		return self.tasks
 
-##-----------------------------------New API-------------------------------------###
+##-----------------------------------New Client API-------------------------------------###
 
 class JobsManager(SyncManager):
 	"""
 	"""
 	def __init__(self):
+		server_config=config.Server_Config()
+		IP=server_config.get_config("ip")
+		PORTNUM=int(server_config.get_config("portnum"))
+		AUTHKEY=server_config.get_config("authkey")
 		super(JobsManager, self).__init__(address=(IP, PORTNUM), authkey=AUTHKEY)
 		self.connect()
 		print 'Client connected to %s:%s' % (IP, PORTNUM)
 
 	def __init__(self,server_ip=None,port=None,auth_key=None):
+		server_config=config.Server_Config()
+		IP=server_config.get_config("ip")
+		PORTNUM=int(server_config.get_config("portnum"))
+		AUTHKEY=server_config.get_config("authkey")
 
 		if server_ip==None:
 			server_ip=IP
@@ -245,31 +257,6 @@ JobsManager.register('delete_waiter')
 JobsManager.register('get_wait_list')	
 
 ##-----------------------------------------------------------------------------##
-
-## Older API ####
-class JobsConsumer(SyncManager):
-	pass
-JobsConsumer.register('add_job')	
-JobsConsumer.register('get_sync_data')	
-JobsConsumer.register('get_callbacks_dict')	
-JobsConsumer.register('get_waiter')	
-JobsConsumer.register('delete_waiter')
-JobsConsumer.register('get_wait_list')	
-		
-def make_client_manager(ip, port, authkey):
-	""" Create a manager for a client. This manager connects to a server on the
-		given address and exposes add_job method to add job.
-		Return a manager object.
-	"""
-	JobsConsumer.register('add_job')	
-	JobsConsumer.register('get_sync_data')	
-	JobsConsumer.register('get_callbacks_dict')	
-	JobsConsumer.register('get_waiter')	
-	JobsConsumer.register('get_wait_list')	
-	JobsConsumer.register('delete_waiter')
-
-	manager = JobsConsumer(address=(ip, port), authkey=authkey)
-	manager.connect()
-
-	print 'Client connected to %s:%s' % (ip, port)
-	return manager
+if __name__=="__main__":
+	#add_job(("test.test_module","squar_it",{"ip":1}))
+	add_job(("test.test_module","sum",{"a":1,"b":2,"c":3}))
