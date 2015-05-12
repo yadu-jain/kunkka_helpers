@@ -32,7 +32,7 @@ def refresh_routes(provider_trip_id,provider_id,from_jd,to_jd):
 		from_jd: string date(YYYY-MM-DD)
 		to_jd: string date(YYYY-MM-DD)
 	"""
-	url=refresh_routes_url
+	url=REFRESH_ROUTES_URL
 	url=url.replace("$provider_trip_id",str(provider_trip_id))
 	url=url.replace("$provider_id",str(provider_id))
 	url=url.replace("$from_jd",from_jd)

@@ -24,7 +24,7 @@ class Server_Config(object):
 				config_section = self.config.get(active_section,"default_config_section")
 				if not (config_section in self.config.sections()):
 					raise Exception("active section "+config_section+" not found !")	
-				print "Default Server Config: %s" % config_section
+				#print "Default Server Config: %s" % config_section
 				self.section = config_section
 			self.loaded=True
 		except Exception as ex:
