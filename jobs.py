@@ -9,7 +9,8 @@ import time
 import pickle
 import traceback
 import server_config as config
-
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 ## orderdict is not supported in dist_it
 # try:
@@ -36,7 +37,8 @@ def add_job(job,callback_list=[]):
 	job_q=manager.get_job_q()
 	db=manager.get_server_db()	
 	row_id=0
-	if self.db!=None:
+	if str(db)=="None":
+		db=None
 		print "adding job..."
 		row_id = db.add_job(job,callback_list)	
 	job_q.put(job + (row_id,))				
@@ -65,6 +67,7 @@ class Jobs_Pusher(object):
 		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))
 		print "getting job queue"				
 		row_id=0
+		print self.db
 		if self.db!=None:
 			row_id = self.db.add_job(job,callback_list)
 		print "queue put"
@@ -79,6 +82,8 @@ class Jobs_Pusher(object):
 		self.manager=JobsManager(self.server_ip,self.port,self.auth_key)		
 		self.job_q=self.manager.get_job_q()
 		self.db=self.manager.get_server_db()
+		if str(self.db)=="None":
+			self.db=None
 
 	def add_job(self,job,callback_list=[]):
 		"""
@@ -164,13 +169,13 @@ class JobsWaiter(object):
 		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))		
 		job=(job[0],job[1],dict(job[2]))
 		
-		print job
+		pp.pprint( job )
 		print "Getting db"
 		db=self.manager.get_server_db()				
 
 		row_id=0				
-		if not db._getvalue() is None:
-			print db
+		if str(db)=="None":
+			db=None
 			row_id = db.add_job(job,callback_list)
 		job=job+(row_id,)
 		req=job
