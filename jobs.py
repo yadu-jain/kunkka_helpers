@@ -47,10 +47,16 @@ def add_job(job,callback_list=[]):
 ## Can be used to add job with ability to reuse connection
 
 class Jobs_Pusher(object):
-	def __init__(self,server_ip,port,auth_key):		
-		self.server_ip=server_ip
-		self.port=port
-		self.auth_key=auth_key
+	def __init__(self,server_ip=None,port=None,auth_key=None):		
+		if server_ip is None or port is None or authkey is None:
+			server_config=config.Server_Config()
+			self.server_ip=server_config.get_config("ip")
+			self.port=int(server_config.get_config("portnum"))
+			self.auth_key=server_config.get_config("authkey")
+		else:			
+			self.server_ip=server_ip
+			self.port=port
+			self.auth_key=auth_key
 		self.manager=None
 		self.job_q=None
 		self.db=None
