@@ -7,6 +7,9 @@ import server_config as config
 
 server_config=config.Server_Config()
 REFRESH_ROUTES_URL=server_config.get_config("refresh_routes_url")
+REFRESH_TRIP_PICKUPS_URL=server_config.get_config("refresh_trip_pickups_url")
+REFRESH_TRIP_JD_PICKUPS_URL=server_config.get_config("refresh_trip_jd_pickups_url")
+REFRESH_PICKUP_DETAILS_URL=server_config.get_config("refresh_pickup_details_url")
 GDS_USERNAME=server_config.get_config("gds_username")
 GDS_PASSWORD=server_config.get_config("gds_password")
 
@@ -37,6 +40,37 @@ def refresh_routes(provider_trip_id,provider_id,from_jd,to_jd):
 	url=url.replace("$provider_id",str(provider_id))
 	url=url.replace("$from_jd",from_jd)
 	url=url.replace("$to_jd",to_jd)
+	import urllib2
+	return urllib2.urlopen(url).read()
+
+def refresh_pickup_details(provider_pickup_id,provider_id):
+	"""
+		Clear pickup details cache in gds
+	"""
+	pass
+	url=REFRESH_PICKUP_DETAILS_URL
+	url=url.replace("$provider_id",str(provider_id))
+	url=url.replace("$provider_pickup_id",str(provider_pickup_id))
+	import urllib2
+	return urllib2.urlopen(url).read()
+
+def	refresh_trip_pickups(provider_trip_id,provider_id,str_journey_date=None):
+	"""
+		deactivate all pickups of this trips
+		->. For given journey date if journey_date is not None
+		->. For all coming journey_dates if journey_date is None
+	"""
+	url=None
+	if str_journey_date==None:
+		url=REFRESH_TRIP_PICKUPS_URL
+		url=url.replace("$provider_trip_id",str(provider_trip_id))
+		url=url.replace("$provider_id",str(provider_id))		
+	else:
+		url=REFRESH_TRIP_JD_PICKUPS_URL
+		url=url.replace("$provider_trip_id",str(provider_trip_id))
+		url=url.replace("$provider_id",str(provider_id))
+		url=url.replace("$journey_date",str(str_journey_date))
+	print url
 	import urllib2
 	return urllib2.urlopen(url).read()
 ###-----------------------------------------------------------------------####
