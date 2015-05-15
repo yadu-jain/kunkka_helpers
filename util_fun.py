@@ -12,6 +12,8 @@ REFRESH_PICKUP_DETAILS_URL=server_config.get_config("refresh_pickup_details_url"
 REFRESH_TRIP_JD_PICKUPS_URL=server_config.get_config("refresh_trip_jd_pickups_url")
 REFRESH_TRIP_ROUTES_DETAILS_URL=server_config.get_config("refresh_trip_routes_details")
 REFRESH_TRIP_JD_ROUTES_DETAILS_URL=server_config.get_config("refresh_trip_jd_routes_details")
+REFRESH_ROUTES_LAYOUT_DETAILS_URL=server_config.get_config("refresh_routes_layout_details")
+
 
 GDS_USERNAME=server_config.get_config("gds_username")
 GDS_PASSWORD=server_config.get_config("gds_password")
@@ -43,6 +45,7 @@ def refresh_routes(provider_trip_id,provider_id,from_jd,to_jd):
 	url=url.replace("$provider_id",str(provider_id))
 	url=url.replace("$from_jd",from_jd)
 	url=url.replace("$to_jd",to_jd)
+	#print url
 	import urllib2
 	return urllib2.urlopen(url).read()
 
@@ -73,11 +76,24 @@ def	refresh_trip_pickups(provider_trip_id,provider_id,str_journey_date=None):
 		url=url.replace("$provider_trip_id",str(provider_trip_id))
 		url=url.replace("$provider_id",str(provider_id))
 		url=url.replace("$journey_date",str(str_journey_date))
-	print url
+	#print url
 	import urllib2
 	return urllib2.urlopen(url).read()
 
-def refresh_trip_routes_details(provider_trip_id,provider_id,str_journey_date=None):
+def refresh_layouts(provider_trip_id,provider_id,str_from_date,str_to_date):
+	"""
+		refresh layout of trip routes for from_jd-to_jd
+	"""
+	url=REFRESH_ROUTES_LAYOUT_DETAILS_URL
+	url=url.replace("$provider_trip_id",str(provider_trip_id))
+	url=url.replace("$provider_id",str(provider_id))
+	url=url.replace("$from_date",str(str_from_date))
+	url=url.replace("$to_date",str(str_to_date))
+	#print url
+	import urllib2
+	return urllib2.urlopen(url).read()	
+
+def refresh_routes_details(provider_trip_id,provider_id,str_journey_date=None):
 	"""
 		refresh routes details of the trip
 		->. For given journey date if journey_date is not None
@@ -93,10 +109,10 @@ def refresh_trip_routes_details(provider_trip_id,provider_id,str_journey_date=No
 		url=url.replace("$provider_trip_id",str(provider_trip_id))
 		url=url.replace("$provider_id",str(provider_id))
 		url=url.replace("$journey_date",str(str_journey_date))
-	print url
+	#print url
 	import urllib2
 	return urllib2.urlopen(url).read()	
-	
+
 ###-----------------------------------------------------------------------####
 if __name__=='__main__':
 	print get_process_id(1)
