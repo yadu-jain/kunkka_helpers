@@ -179,10 +179,10 @@ class JobsWaiter(object):
 		print "Getting db"
 		db=self.manager.get_server_db()				
 
-		row_id=0				
-		if str(db)=="None":
-			db=None
+		row_id=0
+		if db!=None:
 			row_id = db.add_job(job,callback_list)
+
 		job=job+(row_id,)
 		req=job
 		callback_job = callback_list[0]
