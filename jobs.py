@@ -175,7 +175,7 @@ class JobsWaiter(object):
 		#job=(job[0],job[1],OrderedDict(sorted(job[2].items())))		
 		job=(job[0],job[1],dict(job[2]))
 		
-		pp.pprint( job )
+		# pp.pprint( job )
 		print "Getting db"
 		db=self.manager.get_server_db()				
 
